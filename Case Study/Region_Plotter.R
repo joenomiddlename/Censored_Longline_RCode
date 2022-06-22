@@ -5,7 +5,7 @@ library(tidyverse)
 # layer="coast_ALBERS")
 # COAST <- rgeos::gSimplify(COAST, tol=1000)
 COAST <- readRDS('Hires_BC_Coastline.rds')
-load("C:/Users/WATSONJOE/OneDrive - DFO-MPO/Documents/hookcompetition/data/yelloweye_rockfish.rda")
+yelloweye_rockfish <- readRDS("yelloweye-rockfish.rds")
 # Convert to sf format
 stations <- yelloweye_rockfish$set_counts
 stations <-

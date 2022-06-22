@@ -786,7 +786,7 @@ for(nsim in 1:n_sim)
 }
 # Save results
 #saveRDS(Results, 'Simulation_Results_Correlated_Corrected_Aggressive.rds')
-Results <- readRDS('./Simulation Study/RDS_Files/Simulation_Results_Correlated_Corrected_Aggressive.rds')
+Results <- readRDS('Simulation_Results_Correlated_Corrected_Aggressive.rds')
 
 library(inlabru)
 # Create artificial 'relative abundance' of target and slow species plots

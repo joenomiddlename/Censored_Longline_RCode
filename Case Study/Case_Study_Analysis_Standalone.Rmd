@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(mgcv)
 library(sdmTMB)
+library(MASS)
 ```
 
 ## Case Study
@@ -1354,7 +1355,6 @@ results %>%
     #ggtitle('Relative abundance vs. year for competing estimators',
     #        subtitle = 'Mean and 95% confidence intervals shown. Exploratory analysis #has determined that a fishing event is censored if > 85%, \n> 95%, and 100% of baits #have been removed for Lingcod, Arrowtooth Flounder, and Spiny Dogfish respectively.')
 
-library(MASS)
 results %>%
     filter(Species %in% species_vec[cprop_values==0.95],
            Method %in% c('CPUE-based', 'Censored')) %>%
