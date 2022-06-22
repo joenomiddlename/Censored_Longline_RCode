@@ -7,4 +7,4 @@ The code and results files for the case study can be found in the folder: *Case 
 
 All the figures and results seen in the manuscript can be reproduced using the code found in this repository. If you run into any issues, please make an issue - I will respond as quickly as possible!
 
-Note: the easiest way to use this repository is to download it as a zip file.
+Note: the easiest way to use this repository is to download it as a zip file by clicking the green 'Code' button seen in the top-right of the main page.
