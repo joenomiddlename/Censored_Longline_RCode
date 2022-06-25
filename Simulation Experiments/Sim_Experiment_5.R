@@ -1,5 +1,5 @@
 # Simulation study demonstrating the censored hook competition method
-# 3 species, as in experiment 3, but the target species reaches hook first
+# 3 species, as in experiment 3, but the Target species reaches hook first
 # We comment this code less due to the overlap with sim experiment 2's code
 library(INLA)
 library(ggplot2)
@@ -8,7 +8,7 @@ library(mgcv)
 seed <- 25032022 # date
 set.seed(seed)
 nspecies <- 3
-# Note that the target species (3rd) is now fastest to arrive to baits with exp dist
+# Note that the Target species (3rd) is now fastest to arrive to baits with exp dist
 bite_funs <- c('constant', 'mixed', 'exp_decay')
 soak_time <- 5
 n_hooks <- 800
@@ -789,24 +789,24 @@ for(nsim in 1:n_sim)
 Results <- readRDS('Simulation_Results_Correlated_Corrected_Aggressive.rds')
 
 library(inlabru)
-# Create artificial 'relative abundance' of target and slow species plots
+# Create artificial 'relative abundance' of target and Competitor plots
 rel_abund_dat <- data.frame(expand.grid(
-  species=c('target species','slow species'),
+  species=c('Target species','Competitor'),
   sat_level=factor(c('low','high'), levels=c('low','high'), ordered = T),
   mean_attract=factor(c('constant','linear')),
   Year=c(1,2,3,4,5,6)))
 rel_abund_dat$Abundance <- 1
-rel_abund_dat$Abundance[rel_abund_dat$species=='target species'&
+rel_abund_dat$Abundance[rel_abund_dat$species=='Target species'&
                           rel_abund_dat$mean_attract=='linear'] <-
-  rel_abund_dat$Year[rel_abund_dat$species=='target species'&
+  rel_abund_dat$Year[rel_abund_dat$species=='Target species'&
                        rel_abund_dat$mean_attract=='linear']
-rel_abund_dat$Abundance[rel_abund_dat$species=='slow species'&
+rel_abund_dat$Abundance[rel_abund_dat$species=='Competitor'&
                           rel_abund_dat$sat_level=='low'] <-
-  (c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='slow species'&
+  (c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='Competitor'&
                                                             rel_abund_dat$sat_level=='low']]
-rel_abund_dat$Abundance[rel_abund_dat$species=='slow species'&
+rel_abund_dat$Abundance[rel_abund_dat$species=='Competitor'&
                           rel_abund_dat$sat_level=='high'] <-
-  2*(c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='slow species'&
+  2*(c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='Competitor'&
                                                               rel_abund_dat$sat_level=='high']]
 
 rel_abund_plot <-
@@ -817,11 +817,11 @@ rel_abund_plot <-
             xmin = -Inf,xmax = Inf,
             ymin = -Inf,ymax = Inf,alpha = 0.3) +
   geom_line() +
-  scale_fill_discrete(labels=c('Target Species', 'Slow Species')) +
+  scale_fill_discrete(labels=c('Target species', 'Competitor')) +
   facet_grid(mean_attract+sat_level~.,
              labeller = labeller(
                mean_attract = c(
-                 constant = 'constant target species \nabundance',
+                 constant = 'constant Target species \nabundance',
                  linear = 'linearly increasing target \nspecies abundance '
                ),
                sat_level = c(
@@ -844,6 +844,7 @@ rel_abund_plot <-
 Results$sat_level <- factor(Results$sat_level, levels=c('low','high'), ordered = T)
 Results$mean_attract <- factor(Results$mean_attract, levels=c('constant','linear'), ordered = T)
 Results$correlation <- factor(Results$correlation, levels=c('negative','low','medium','high'), ordered = T)
+Results$model[Results$model=='naive'] <- 'CPUE'
 Results$model <- factor(Results$model, levels=c('CPUE','adjust','censored','censored_cprop1','censored_upper85_cprop1','censored_upper85'), ordered = T)
 
 # THESE ARE DESIGNED FOR 5.83x11.3
@@ -851,7 +852,7 @@ Results$model <- factor(Results$model, levels=c('CPUE','adjust','censored','cens
 multiplot(
   rel_abund_plot + ggtitle('Simulated abundance'),
   Results %>%
-    filter(!(model %in% c('censored'))) %>%
+    filter(!(model %in% c('censored','censored_upper85'))) %>%
     group_by(sat_level, mean_attract, correlation, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
@@ -879,7 +880,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -889,23 +890,23 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('Bias in relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation. Columns are correlation \nof target species\' abundance with saturation events. 95% Confidence intervals smaller than plotting shapes so omitted.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation. Columns are correlation \nof Target species\' abundance with saturation events. 95% Confidence intervals smaller than plotting shapes so omitted.') +
     ylab('Bias') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_blank(),
           legend.position = 'left', strip.text.y = element_blank()) +
-    scale_color_viridis_d(labels=c('CPUE','ICR','Censored 1','Censored 1 Q','Censored 0.95 Q')) +
-    scale_shape_manual(labels=c('CPUE','ICR','Censored 1','Censored 1 Q','Censored 0.95 Q'),
-                       values=c('circle','triangle','cross','plus','square')) +
+    scale_color_viridis_d(labels=c('CPUE','ICR','Censored 1','Censored 1 Q')) +
+    scale_shape_manual(labels=c('CPUE','ICR','Censored 1','Censored 1 Q'),
+                       values=c('circle','triangle','square','square')) +
     guides(color=guide_legend(override.aes=list(fill=NA)))+ labs(colour='Method', shape='Method'),
   layout = matrix(c(rep(NA,32),rep(1,468),rep(2,2000)), nrow = 500, ncol = 5, byrow = F))
 
 multiplot(
   rel_abund_plot + ggtitle('Simulated abundance'),
   Results %>%
-    filter(!(model %in% c('censored'))) %>%
+    filter(!(model %in% c('censored','censored_upper85'))) %>%
     group_by(sat_level, mean_attract, correlation, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
@@ -933,7 +934,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -943,15 +944,15 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('Bias in relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation. Columns are correlation \nof target species\' abundance with saturation events. 95% Confidence intervals smaller than plotting shapes so omitted.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation. Columns are correlation \nof Target species\' abundance with saturation events. 95% Confidence intervals smaller than plotting shapes so omitted.') +
     ylab('Bias') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_blank(),
           legend.position = 'left', strip.text.y = element_blank()) +
-    scale_color_viridis_d(labels=c('CPUE','ICR','Censored 1','Censored 1 Q','Censored 0.95 Q')) +
-    scale_shape_manual(labels=c('CPUE','ICR','Censored 1','Censored 1 Q','Censored 0.95 Q'),
+    scale_color_viridis_d(labels=c('CPUE','ICR','Censored 1','Censored 1 Q')) +
+    scale_shape_manual(labels=c('CPUE','ICR','Censored 1','Censored 1 Q'),
                        values=c('circle','triangle','cross','plus','square')) +
     guides(color=guide_legend(override.aes=list(fill=NA)))+ labs(colour='Method', shape='Method'),
   layout = matrix(c(rep(NA,32),rep(1,468),rep(2,2000)), nrow = 500, ncol = 5, byrow = F))
@@ -987,7 +988,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -997,7 +998,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('Bias in relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation. Columns are correlation \nof target species\' abundance with saturation events. 95% Confidence intervals smaller than plotting shapes so omitted.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation. Columns are correlation \nof Target species\' abundance with saturation events. 95% Confidence intervals smaller than plotting shapes so omitted.') +
     ylab('Bias') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -1013,7 +1014,7 @@ multiplot(
 multiplot(
   rel_abund_plot + ggtitle('Simulated abundance'),
   Results %>%
-    filter(!(model %in% c('censored'))) %>%
+    filter(!(model %in% c('censored','censored_upper85'))) %>%
     group_by(sat_level, mean_attract, correlation, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
@@ -1041,7 +1042,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1051,23 +1052,23 @@ multiplot(
                )) +
     geom_hline(yintercept=0.95) +
     ggtitle('Coverage of intervals of relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation,\nColumns are correlation of target species\' abundance with saturation events') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation,\nColumns are correlation of Target species\' abundance with saturation events') +
     ylab('Coverage') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_blank(),
           legend.position = 'left', strip.text.y = element_blank()) +
-    scale_color_viridis_d(labels=c('CPUE','ICR','Censored 1','Censored 1 Q','Censored 0.95 Q')) +
-    scale_shape_manual(labels=c('CPUE','ICR','Censored 1','Censored 1 Q','Censored 0.95 Q'),
-                       values=c('circle','triangle','cross','plus','square')) +
+    scale_color_viridis_d(labels=c('CPUE','ICR','Censored 1','Censored 1 Q')) +
+    scale_shape_manual(labels=c('CPUE','ICR','Censored 1','Censored 1 Q'),
+                       values=c('circle','triangle','square','square')) +
     guides(color=guide_legend(override.aes=list(fill=NA)))+ labs(colour='Method', shape='Method'),
   layout = matrix(c(rep(NA,32),rep(1,468),rep(2,2000)), nrow = 500, ncol = 5, byrow = F))
 
 multiplot(
   rel_abund_plot + ggtitle('Simulated abundance'),
   Results %>%
-    filter(!(model %in% c('censored','adjust'))) %>%
+    filter(!(model %in% c('censored','adjust','censored_upper85'))) %>%
     group_by(sat_level, mean_attract, correlation, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
@@ -1095,7 +1096,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1105,7 +1106,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('MSE in relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation. Columns are correlation \nof target species\' abundance with saturation events. 95% Confidence intervals smaller than plotting shapes so omitted.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation. Columns are correlation \nof Target species\' abundance with saturation events. 95% Confidence intervals smaller than plotting shapes so omitted.') +
     ylab('MSE') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -1121,7 +1122,7 @@ multiplot(
 multiplot(
   rel_abund_plot + ggtitle('Simulated abundance'),
   Results %>%
-    filter(!(model %in% c('censored'))) %>%
+    filter(!(model %in% c('censored','censored_upper85'))) %>%
     group_by(sat_level, mean_attract, correlation, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
@@ -1149,7 +1150,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1159,15 +1160,15 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('MSE in relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation. Columns are correlation \nof target species\' abundance with saturation events. 95% Confidence intervals smaller than plotting shapes so omitted.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation. Columns are correlation \nof Target species\' abundance with saturation events. 95% Confidence intervals smaller than plotting shapes so omitted.') +
     ylab('MSE') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
           panel.background = element_blank(), axis.line = element_blank(),
           legend.position = 'left', strip.text.y = element_blank()) +
-    scale_color_viridis_d(labels=c('CPUE','ICR','Censored 1','Censored 1 Q','Censored 0.95 Q')) +
-    scale_shape_manual(labels=c('CPUE','ICR','Censored 1','Censored 1 Q','Censored 0.95 Q'),
-                       values=c('circle','triangle','cross','plus','square')) +
+    scale_color_viridis_d(labels=c('CPUE','ICR','Censored 1','Censored 1 Q')) +
+    scale_shape_manual(labels=c('CPUE','ICR','Censored 1','Censored 1 Q'),
+                       values=c('circle','triangle','square','square')) +
     guides(color=guide_legend(override.aes=list(fill=NA)))+ labs(colour='Method', shape='Method'),
   layout = matrix(c(rep(NA,32),rep(1,468),rep(2,2000)), nrow = 500, ncol = 5, byrow = F))

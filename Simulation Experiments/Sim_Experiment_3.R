@@ -1,5 +1,5 @@
 # Simulation study demonstrating the censored hook competition method
-# 3 correlated species groups. The target species is now overdispersed (mildly schooling)
+# 3 correlated species groups. The Target species is now overdispersed (mildly schooling)
 # We comment this script much less than before due to the overlap with experiment 2
 library(INLA)
 library(ggplot2)
@@ -17,7 +17,7 @@ nyears <- 100
 saturation_level <- c(1,2)
 mean_attract <- c('constant', 'linear')
 # We define covariance matrices for a range of negative and positive correlation scenarios
-# The target species is the third.
+# The Target species is the third.
 cov_matrices <- list( neg=
                         diag(c(0.8, 0.2, 0.2)) %*%
                         matrix(c(1,0,0,0,1,-0.6,0,-0.6,1), 3,3,byrow = T) %*%
@@ -113,7 +113,7 @@ for(nsim in 1:n_sim)
     {
       for(k in 1:length(cov_matrices))
       {
-        # NOTE THAT WE NOW SCALE THE MEAN OF THE TARGET SPECIES BY THE EXPONENTIAL OF THE
+        # NOTE THAT WE NOW SCALE THE MEAN OF THE Target species BY THE EXPONENTIAL OF THE
         # LOG-NORMAL VARIANCE TO ENSURE THE SAME MEAN FROM THE PREVIOUS EXPERIMENT
         # DOESN'T AFFECT relative abundance!!
         if(mean_attract[j] == 'constant')
@@ -154,7 +154,7 @@ for(nsim in 1:n_sim)
           {
             for(j2 in 1:nyears)
             {
-              # aggressive species bite times
+              # Competitor bite times
               bite_time_1 <- bite_samp(bite_funs[1],sum(nbite$attracted[nbite$species==1 &
                                                                           nbite$station==i2 &
                                                                           nbite$year==j2]))
@@ -175,7 +175,7 @@ for(nsim in 1:n_sim)
                   bite_samp(bite_funs[2],sum(bite_time_2>soak_time))
               }
 
-              # target species' bite times
+              # Target species' bite times
               bite_time_3 <- bite_samp(bite_funs[3],sum(nbite$attracted[nbite$species==3 &
                                                                           nbite$station==i2 &
                                                                           nbite$year==j2]))
@@ -821,24 +821,24 @@ for(nsim in 1:n_sim)
 #saveRDS(Results, 'Simulation_Results_Correlated_Corrected_2.rds')
 Results <- readRDS('Simulation_Results_Correlated_Corrected_2.rds')
 
-# Create artificial 'relative abundance' of target and aggressive species plots
+# Create artificial 'relative abundance' of target and Competitor plots
 rel_abund_dat <- data.frame(expand.grid(
-  species=c('target species','aggressive species'),
+  species=c('Target species','Competitor'),
   sat_level=factor(c('low','high'), levels=c('low','high'), ordered = T),
   mean_attract=factor(c('constant','constant','linear','linear')),
   Year=c(1,2,3,4,5,6)))
 rel_abund_dat$Abundance <- 1
-rel_abund_dat$Abundance[rel_abund_dat$species=='target species'&
+rel_abund_dat$Abundance[rel_abund_dat$species=='Target species'&
                           rel_abund_dat$mean_attract=='linear'] <-
-  rel_abund_dat$Year[rel_abund_dat$species=='target species'&
+  rel_abund_dat$Year[rel_abund_dat$species=='Target species'&
                        rel_abund_dat$mean_attract=='linear']
-rel_abund_dat$Abundance[rel_abund_dat$species=='aggressive species'&
+rel_abund_dat$Abundance[rel_abund_dat$species=='Competitor'&
                           rel_abund_dat$sat_level=='low'] <-
-  (c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='aggressive species'&
+  (c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='Competitor'&
                                                             rel_abund_dat$sat_level=='low']]
-rel_abund_dat$Abundance[rel_abund_dat$species=='aggressive species'&
+rel_abund_dat$Abundance[rel_abund_dat$species=='Competitor'&
                           rel_abund_dat$sat_level=='high'] <-
-  2*(c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='aggressive species'&
+  2*(c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='Competitor'&
                                                               rel_abund_dat$sat_level=='high']]
 
 rel_abund_plot <-
@@ -849,11 +849,11 @@ rel_abund_plot <-
             xmin = -Inf,xmax = Inf,
             ymin = -Inf,ymax = Inf,alpha = 0.3) +
   geom_line() +
-  scale_fill_discrete(labels=c('Target Species', 'Aggressive Species')) +
+  scale_fill_discrete(labels=c('Target species', 'Competitor')) +
   facet_grid(mean_attract+sat_level~.,
              labeller = labeller(
                mean_attract = c(
-                 constant = 'constant target species \nabundance',
+                 constant = 'constant Target species \nabundance',
                  linear = 'linearly increasing target \nspecies abundance '
                ),
                sat_level = c(
@@ -887,7 +887,7 @@ multiplot(
     group_by(sat_level, mean_attract, correlation, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
-    filter(Station>1, all_converged==1, !(model %in% c('censored_upper95','censored_upper100')) ) %>%
+    filter(Station>1, all_converged==1, !(model %in% c('censored_upper85','censored_upper95','censored_upper100')) ) %>%
     group_by(model, Station, correlation, sat_level,  mean_attract) %>%
     mutate(Mean = median(Rel_Bias),
            UCL = median(Rel_Bias)+(2/sqrt(length(Rel_Bias)))*mad(Rel_Bias),
@@ -911,7 +911,7 @@ multiplot(
                    high = 'high positive correlation'
                    ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -921,7 +921,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('Bias in relative abundance for each method')+#,
-#            subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns are correlation of target species\' abundance with saturation events.') +
+#            subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns are correlation of Target species\' abundance with saturation events.') +
     ylab('Bias') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -964,7 +964,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -974,7 +974,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('MSE in relative abundance for each method')+#,
-#            subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns are correlation of target species\' abundance with saturation events.') +
+#            subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns are correlation of Target species\' abundance with saturation events.') +
     ylab('MSE') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -1017,7 +1017,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1027,7 +1027,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('MSE in relative abundance for each method')+#,
-#            subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns are correlation of target species\' abundance with saturation events.') +
+#            subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns are correlation of Target species\' abundance with saturation events.') +
     ylab('MSE') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -1046,7 +1046,7 @@ multiplot(
     group_by(sat_level, mean_attract, correlation, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
-    filter(Station>1, all_converged==1, !(model %in% c('censored_upper95','censored_upper100')) ) %>%
+    filter(Station>1, all_converged==1, !(model %in% c('censored_upper85','censored_upper95','censored_upper100')) ) %>%
     group_by(model, Station, correlation, sat_level,  mean_attract) %>%
     mutate(Coverage_Mean = mean(Rel_Coverage),
            UCL=mean(Rel_Coverage)+(2/sqrt(length(Rel_Coverage)))*sqrt(mean(Rel_Coverage)*(1-mean(Rel_Coverage))),
@@ -1070,7 +1070,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1080,7 +1080,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0.95) +
     ggtitle('Coverage of intervals of relative abundance for each method')+#,
-#            subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns are correlation of target species\' abundance with saturation events.') +
+#            subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns are correlation of Target species\' abundance with saturation events.') +
     ylab('Coverage') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -1124,7 +1124,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1134,7 +1134,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('Bias in relative abundance Across Years 2-6 for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation,\nX-axis values are correlation of target species\' abundance with saturation events.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation,\nX-axis values are correlation of Target species\' abundance with saturation events.') +
     ylab('Bias in relative abundance') +
     xlab('Correlation') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -1178,7 +1178,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1188,7 +1188,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('MSE in relative abundance Across Years 2-6 for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation,\nX-axis values are correlation of target species\' abundance with saturation events.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation,\nX-axis values are correlation of Target species\' abundance with saturation events.') +
     ylab('MSE in relative abundance') +
     xlab('Correlation') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -1230,7 +1230,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1240,7 +1240,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('MSE in relative abundance Across Years 2-6 for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation,\nX-axis values are correlation of target species\' abundance with saturation events.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation,\nX-axis values are correlation of Target species\' abundance with saturation events.') +
     ylab('MSE in relative abundance') +
     xlab('Correlation') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -1285,7 +1285,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1295,7 +1295,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0.95) +
     ggtitle('Coverage in credible intervals of relative abundance in Year 6 for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nX-axis values are correlation of target species\' abundance with saturation events.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nX-axis values are correlation of Target species\' abundance with saturation events.') +
     ylab('Coverage in Year 6 credible intervals of relative abundance') +
     xlab('Correlation') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -1335,7 +1335,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1345,7 +1345,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0.95) +
     ggtitle('Coverage of intervals of relative abundance in Year 6 for each method')+#,
-            #subtitle = 'Abundance of target species is increasing and the average degree of hook saturation is low,\nX-axis value are the censored estimators with different upper quantiles of catch data specified as observed') +
+            #subtitle = 'Abundance of Target species is increasing and the average degree of hook saturation is low,\nX-axis value are the censored estimators with different upper quantiles of catch data specified as observed') +
     ylab('Coverage in Year 6') +
     xlab('Estimator') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -1384,7 +1384,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1430,7 +1430,7 @@ multiplot(
                    high = 'high positive correlation'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -1574,7 +1574,7 @@ Results %>%
                  high = 'high positive correlation'
                ),
                mean_attract = c(
-                 constant = 'constant target species \nabundance',
+                 constant = 'constant Target species \nabundance',
                  linear = 'linearly increasing target \nspecies abundance '
                ),
                sat_level = c(
@@ -1583,13 +1583,13 @@ Results %>%
                ))) +
   ylab('Convergence proportion') +
   ggtitle('Proportion of simulations that converged for each method')+#,
-          #subtitle = 'Rows are degree of saturation and trend in relative abundance columns are correlation of target species\' abundance with\nsaturation events. Dashed black line indicates proportion of converged simulations with 85% bait removal and dotted red\nline indicates proportion of converged simulations with 100% bait removal.') +
+          #subtitle = 'Rows are degree of saturation and trend in relative abundance columns are correlation of Target species\' abundance with\nsaturation events. Dashed black line indicates proportion of converged simulations with 85% bait removal and dotted red\nline indicates proportion of converged simulations with 100% bait removal.') +
   xlab('Model') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   geom_hline(aes(yintercept=Mean), linetype='dashed', colour='black') +
   geom_hline(aes(yintercept=Mean2), linetype='dotted', colour='red') +
   geom_hline(yintercept = 1, linetype='solid', colour='black') +
   scale_x_discrete(labels=c("censored" = "Censored 0.95", "censored_upper100" = "Censored 0.95 Q Max",
-                            "censored_upper95" = "Censored 0.95 Q 0.95","censored_upper85" = "Censored 0.95 Q 0.85 \n'Censored 0.95 Q'")) +
+                            "censored_upper95" = "Censored 0.95 Q 0.95","censored_upper85" = "Censored 0.95 Q 0.85")) +
   guides(colour='none', fill='none') +
   scale_fill_brewer(palette = 'Pastel1') +
   theme(strip.text.y = element_blank()) +
@@ -1609,7 +1609,7 @@ Results %>%
   geom_point(aes(x=model, y=Mean2), colour='red')+
   facet_grid(correlation ~sat_level + mean_attract) +
   ggtitle('Proportion of Converged Simulations with Specified Degree of Hook Saturation')+#,
-          #subtitle = 'Columns are degree of saturation and trend in relative abundance,\nRows are correlation of target species\' abundance with saturation events \nRed and Black correspond to 100% and 85% Hook Saturation respectively') +
+          #subtitle = 'Columns are degree of saturation and trend in relative abundance,\nRows are correlation of Target species\' abundance with saturation events \nRed and Black correspond to 100% and 85% Hook Saturation respectively') +
   ylab('Proportion') + xlab('Model')
 
 Results %>%
@@ -1625,7 +1625,7 @@ Results %>%
   geom_point(aes(x=model, y=Mean2), colour='red')+
   facet_grid(correlation ~sat_level + mean_attract) +
   ggtitle('Proportion of Non-Converged Simulations with Specified Degree of Hook Saturation')+#,
-          #subtitle = 'Columns are degree of saturation and trend in relative abundance,\nRows are correlation of target species\' abundance with saturation events \nRed and Black correspond to 100% and 85% Hook Saturation respectively') +
+          #subtitle = 'Columns are degree of saturation and trend in relative abundance,\nRows are correlation of Target species\' abundance with saturation events \nRed and Black correspond to 100% and 85% Hook Saturation respectively') +
   ylab('Proportion') + xlab('Model')
 
 Results %>%
@@ -1680,7 +1680,7 @@ Results_Correlated %>%
   facet_grid(sat_level+mean_attract ~ correlation, scales = 'free_y') +
   geom_hline(yintercept=0) +
   ggtitle('MSE in relative abundance vs Convergence of Censored Poisson Estimators')+#,
-          #subtitle = 'Rows are degree of saturation and trend in relative abundance,\nColumns are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'Rows are degree of saturation and trend in relative abundance,\nColumns are correlation of Target species\' abundance with saturation events.') +
   ylab('MSE in relative abundance') +
   xlab('Year')
 
@@ -1701,7 +1701,7 @@ Results %>%
   facet_grid(mean_attract + sat_level ~ correlation, scales = 'free_y') +
   geom_hline(yintercept=0) +
   ggtitle('Bias in relative abundance for each method')+#,
-          #subtitle = 'Rows are degree of saturation and trend in relative abundance,\nColumns are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'Rows are degree of saturation and trend in relative abundance,\nColumns are correlation of Target species\' abundance with saturation events.') +
   ylab('Bias in relative abundance') +
   xlab('Year') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
@@ -1723,7 +1723,7 @@ Results %>%
   facet_grid(correlation ~sat_level + mean_attract) +
   geom_hline(yintercept=0) +
   ggtitle('Bias in relative abundance for each method')+#,
-          #subtitle = 'Columns are degree of saturation and trend in relative abundance,\nRows are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'Columns are degree of saturation and trend in relative abundance,\nRows are correlation of Target species\' abundance with saturation events.') +
   ylab('Bias in relative abundance') +
   xlab('Year')
 
@@ -1744,7 +1744,7 @@ Results %>%
   facet_grid(correlation ~sat_level + mean_attract) +
   geom_hline(yintercept=0) +
   ggtitle('Absolute Error in relative abundance for each method')+#,
-          #subtitle = 'Columns are degree of saturation and trend in relative abundance,\nRows are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'Columns are degree of saturation and trend in relative abundance,\nRows are correlation of Target species\' abundance with saturation events.') +
   ylab('Absolute Value of Error in relative abundance') +
   xlab('Model')
 
@@ -1765,7 +1765,7 @@ Results %>%
   facet_grid(correlation~sat_level) +
   geom_hline(yintercept=0) +
   ggtitle('Mean Squared Error in relative abundance for each method')+#,
-          #subtitle = 'relative abundance Constant Across Time \nColumns are degree of saturation,\nRows are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'relative abundance Constant Across Time \nColumns are degree of saturation,\nRows are correlation of Target species\' abundance with saturation events.') +
   ylab('Mean Squared Error in relative abundance') +
   xlab('Model') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
@@ -1786,7 +1786,7 @@ Results %>%
   facet_grid(correlation~sat_level) +
   geom_hline(yintercept=0) +
   ggtitle('Mean Squared Error in relative abundance vs Adjusted Methods')+#,
-          #subtitle = 'relative abundance Constant Across Time \nColumns are degree of saturation,\nRows are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'relative abundance Constant Across Time \nColumns are degree of saturation,\nRows are correlation of Target species\' abundance with saturation events.') +
   ylab('Mean Squared Error in relative abundance') +
   xlab('Model') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
@@ -1808,7 +1808,7 @@ Results %>%
   facet_grid(correlation~sat_level) +
   geom_hline(yintercept=0) +
   ggtitle('Mean Squared Error in relative abundance vs Adjusted Methods')+#,
-          #subtitle = 'relative abundance Constant Across Time \nColumns are degree of saturation,\nRows are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'relative abundance Constant Across Time \nColumns are degree of saturation,\nRows are correlation of Target species\' abundance with saturation events.') +
   ylab('Mean Squared Error in relative abundance') +
   xlab('Model') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
@@ -1829,7 +1829,7 @@ Results %>%
   facet_grid(correlation~sat_level) +
   geom_hline(yintercept=0) +
   ggtitle('Mean Squared Error in relative abundance for each method')+#,
-          #subtitle = 'relative abundance Increasing Across Time \nColumns are degree of saturation,\nRows are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'relative abundance Increasing Across Time \nColumns are degree of saturation,\nRows are correlation of Target species\' abundance with saturation events.') +
   ylab('Mean Squared Error in relative abundance') +
   xlab('Model') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
@@ -1850,7 +1850,7 @@ Results %>%
   facet_grid(correlation~sat_level) +
   geom_hline(yintercept=0) +
   ggtitle('Mean Squared Error in relative abundance vs Adjusted Methods')+#,
-          #subtitle = 'relative abundance Increasing Across Time \nColumns are degree of saturation,\nRows are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'relative abundance Increasing Across Time \nColumns are degree of saturation,\nRows are correlation of Target species\' abundance with saturation events.') +
   ylab('Mean Squared Error in relative abundance') +
   xlab('Model') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
@@ -1872,7 +1872,7 @@ Results %>%
   facet_grid(correlation~sat_level) +
   geom_hline(yintercept=0) +
   ggtitle('Mean Squared Error in relative abundance vs Adjusted Methods')+#,
-          #subtitle = 'relative abundance Constant Across Time \nColumns are degree of saturation,\nRows are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'relative abundance Constant Across Time \nColumns are degree of saturation,\nRows are correlation of Target species\' abundance with saturation events.') +
   ylab('Mean Squared Error in relative abundance') +
   xlab('Model') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
@@ -1894,7 +1894,7 @@ Results %>%
   facet_grid(sat_level + mean_attract ~ correlation, scales='free_y') +
   geom_hline(yintercept=0) +
   ggtitle('Mean Squared Error in relative abundance vs Adjusted Methods')+#,
-          #subtitle = 'relative abundance Constant Across Time \nRows are degree of saturation,\nColumns are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'relative abundance Constant Across Time \nRows are degree of saturation,\nColumns are correlation of Target species\' abundance with saturation events.') +
   ylab('Mean Squared Error in relative abundance') +
   xlab('Model') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
@@ -1915,7 +1915,7 @@ Results %>%
   facet_grid(sat_level + mean_attract ~ correlation, scales='free_y') +
   geom_hline(yintercept=0) +
   ggtitle('Mean Squared Error in relative abundance vs Adjusted Methods')+#,
-          #subtitle = 'relative abundance Constant Across Time \nRows are degree of saturation,\nColumns are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'relative abundance Constant Across Time \nRows are degree of saturation,\nColumns are correlation of Target species\' abundance with saturation events.') +
   ylab('Mean Squared Error in relative abundance') +
   xlab('Model') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 
@@ -1934,7 +1934,7 @@ Results %>%
   facet_grid(correlation ~sat_level + mean_attract) +
   geom_hline(yintercept = 0.95) +
   ggtitle('Coverage of Intervals of relative abundance for each method')+#,
-          #subtitle = 'Columns are degree of saturation and trend in relative abundance,\nRows are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'Columns are degree of saturation and trend in relative abundance,\nRows are correlation of Target species\' abundance with saturation events.') +
   ylab('Coverage of intervals of relative abundance') +
   xlab('Year')
 
@@ -1953,7 +1953,7 @@ Results %>%
   facet_grid(sat_level + mean_attract ~ correlation) +
   geom_hline(yintercept = 0.95) +
   ggtitle('Coverage of Intervals of relative abundance for each method')+#,
-          #subtitle = 'Rows are degree of saturation and trend in relative abundance,\nColumns are correlation of target species\' abundance with saturation events.') +
+          #subtitle = 'Rows are degree of saturation and trend in relative abundance,\nColumns are correlation of Target species\' abundance with saturation events.') +
   ylab('Coverage of intervals of relative abundance') +
   xlab('Model') +  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 

@@ -14,7 +14,7 @@ n_hooks <- 800
 # Note that throughout the sim experiments, the labels of stations and years are swapped.
 nstation <- 6
 nyears <- 30
-# Is the abundance of the target species stationary or increasing?
+# Is the abundance of the Target species stationary or increasing?
 mean_attract <- c('constant', 'linear')
 saturation_level <- 1
 # SD of the lognormal distribution
@@ -545,14 +545,14 @@ Results$model <- factor(Results$model, levels=c('naive','adjust','censored_cprop
 
 # Create artificial 'relative abundance' of target and aggressive species plots
 rel_abund_dat <- data.frame(expand.grid(
-  species=c('target species'),
+  species=c('Target species'),
   sat_level=factor(c('high'), levels=c('high'), ordered = T),
   mean_attract=factor(c('constant', 'linear')),
   Year=c(1,2,3,4,5,6)))
 rel_abund_dat$Abundance <- 800
-rel_abund_dat$Abundance[rel_abund_dat$species=='target species'&
+rel_abund_dat$Abundance[rel_abund_dat$species=='Target species'&
                           rel_abund_dat$mean_attract=='linear'] <-
-  (c(300, 400, 500, 600, 700, 800))[rel_abund_dat$Year[rel_abund_dat$species=='target species'&
+  (c(300, 400, 500, 600, 700, 800))[rel_abund_dat$Year[rel_abund_dat$species=='Target species'&
                        rel_abund_dat$mean_attract=='linear']]
 
 rel_abund_plot <-
@@ -566,7 +566,7 @@ ggplot(rel_abund_dat,
   facet_grid(mean_attract+sat_level~.,
              labeller = labeller(
                mean_attract = c(
-                 constant = 'constant target species \nabundance',
+                 constant = 'constant Target species \nabundance',
                  `linear` = 'linearly increasing slow \nspecies abundance'
                ),
                sat_level = c(
@@ -619,7 +619,7 @@ ggplot(aes(x=Station, y=Mean, ymin=LCL, ymax=UCL, colour=model, group=model, sha
                  mixed = 'Mixture of Distributions'
                ),
                mean_attract = c(
-                 constant = 'constant target species \nabundance',
+                 constant = 'constant Target species \nabundance',
                  linear = 'linearly increasing target \nspecies abundance '
                ),
                sat_level = c(
@@ -629,7 +629,7 @@ ggplot(aes(x=Station, y=Mean, ymin=LCL, ymax=UCL, colour=model, group=model, sha
              )) +
   geom_hline(yintercept=0) +
   ggtitle('Bias in relative abundance for each method')+#,
-          #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe hook location abilities after 85% of baits removed.') +
+          #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe hook location abilities after 85% of baits removed.') +
   ylab('Bias') +
   xlab('Year') + guides(fill='none') +
   scale_fill_brewer(palette = 'Pastel1') +
@@ -649,7 +649,7 @@ multiplot(
     group_by(sat_effects ,mean_attract, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
-    filter(Station>1, all_converged==1) %>%
+    filter(Station>1, all_converged==1, model!='censored_cprop1_85') %>%
     group_by(model, Station, sat_effects, mean_attract) %>%
     mutate(Mean = median(Rel_Bias),
            UCL = median(Rel_Bias)+(2/sqrt(length(Rel_Bias)))*mad(Rel_Bias),
@@ -675,7 +675,7 @@ multiplot(
                    mixed = 'Mixture of Distributions'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -685,7 +685,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('Bias in relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe hook location abilities after 85% of baits removed.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe hook location abilities after 85% of baits removed.') +
     ylab('Bias') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -705,7 +705,7 @@ multiplot(
     group_by(sat_effects ,mean_attract, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
-    filter(Station>1, all_converged==1) %>%
+    filter(Station>1, all_converged==1, model!='censored_cprop1_85') %>%
     group_by(model, Station, sat_effects, mean_attract) %>%
     mutate(Coverage_Mean = mean(Rel_Coverage),
            UCL=mean(Rel_Coverage)+(2/sqrt(length(Rel_Coverage)))*sqrt(mean(Rel_Coverage)*(1-mean(Rel_Coverage))),
@@ -731,7 +731,7 @@ multiplot(
                    mixed = 'Mixture of Distributions'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -742,7 +742,7 @@ multiplot(
     geom_hline(yintercept=0.95) +
     ylim(c(0,1.05)) +
     ggtitle('Coverage of intervals of relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe hook location abilities after 85% of baits removed.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe hook location abilities after 85% of baits removed.') +
     ylab('Coverage') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -763,7 +763,7 @@ multiplot(
     group_by(sat_effects ,mean_attract, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
-    filter(Station>1, all_converged==1) %>%
+    filter(Station>1, all_converged==1, model!='censored_cprop1_85') %>%
     group_by(model, Station, sat_effects, mean_attract) %>%
     mutate(Mean = median(Rel_RMSE),
            UCL = median(Rel_RMSE)+(2/sqrt(length(Rel_RMSE)))*mad(Rel_RMSE),
@@ -789,7 +789,7 @@ multiplot(
                    mixed = 'Mixture of Distributions'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -799,7 +799,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('MSE in relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe hook location abilities after 85% of baits removed.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe hook location abilities after 85% of baits removed.') +
     ylab('MSE') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -819,7 +819,7 @@ multiplot(
     group_by(sat_level, mean_attract, nsim) %>%
     mutate(all_converged = mean(Converge)) %>%
     ungroup() %>%
-    filter(Station>1, all_converged==1, model!='naive') %>%
+    filter(Station>1, all_converged==1, model!='naive', model!='censored_cprop1_85') %>%
     group_by(model, Station, bite_fun,  sat_level, sat_effects, mean_attract) %>%
     mutate(Mean = median(Rel_RMSE),
            UCL = median(Rel_RMSE)+(2/sqrt(length(Rel_RMSE)))*mad(Rel_RMSE),
@@ -845,7 +845,7 @@ multiplot(
                    mixed = 'Mixture of Distributions'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -855,7 +855,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('MSE in relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe hook location abilities after 85% of baits removed.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe hook location abilities after 85% of baits removed.') +
     ylab('MSE') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -903,7 +903,7 @@ multiplot(
                    mixed = 'Mixture of Distributions'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -912,7 +912,7 @@ multiplot(
                  )
                )) +
     ggtitle('Proportion of Fishing Events with Specified Level of Hook Saturation')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
     ylab('Proportion of fishing events') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +

@@ -1,6 +1,6 @@
 # Simulation study demonstrating the censored hook competition method
 # 3 species groups present with uncensored catch count distributions
-# target species is non-schooling, non-overdispersed.
+# Target species is non-schooling, non-overdispersed.
 library(INLA)
 library(ggplot2)
 library(tidyverse)
@@ -19,7 +19,7 @@ nstation <- 6
 nyears <- 30
 # higher saturation level -> more fish of all species
 saturation_level <- c(1,2)
-# is the target species' abundance stationary or increasing?
+# is the Target species' abundance stationary or increasing?
 mean_attract <- c('constant', 'linear')
 # SD of lognormal distributions which scale mean #attracted individuals
 sd_log_bite <- c(0.8, 0.2, 0)
@@ -113,9 +113,9 @@ for(nsim in 1:n_sim)
       {
         if(mean_attract[j] == 'constant')
         {
-          # aggressive species increasing abundance
+          # Competitor increasing abundance
           # other species group constant abundance
-          # target species' abundance stationary
+          # Target species' abundance stationary
           mean_bite =
             cbind(c(120, 140, 160, 180, 200, 280)*saturation_level[i],
                   rep(400,6),
@@ -123,9 +123,9 @@ for(nsim in 1:n_sim)
         }
         if(mean_attract[j] == 'linear')
         {
-          # aggressive species increasing abundance
+          # Competitor increasing abundance
           # other species group constant abundance
-          # target species' abundance increasing
+          # Target species' abundance increasing
           mean_bite =
             cbind(c(120, 140, 160, 180, 200, 280)*saturation_level[i],
                   rep(400,6),
@@ -148,7 +148,7 @@ for(nsim in 1:n_sim)
           {
             for(j2 in 1:nyears)
             {
-              # bite times for aggressive species
+              # bite times for Competitor
               bite_time_1 <- bite_samp(bite_funs[1,l],sum(nbite$attracted[nbite$species==1 &
                                                                           nbite$station==i2 &
                                                                           nbite$year==j2]))
@@ -169,7 +169,7 @@ for(nsim in 1:n_sim)
                   bite_samp(bite_funs[2,l],sum(bite_time_2>soak_time))
               }
 
-              # repeat for target species
+              # repeat for Target species
               bite_time_3 <- bite_samp(bite_funs[3,l],sum(nbite$attracted[nbite$species==3 &
                                                                           nbite$station==i2 &
                                                                           nbite$year==j2]))
@@ -389,7 +389,7 @@ for(nsim in 1:n_sim)
               (dat$prop_sat[dat$prop_sat>cprop]-cprop)*n_hooks*
                 scale_fac[dat$prop_sat>cprop])
 
-            # How many excess baits could have been removed by the target species (upper bound)?
+            # How many excess baits could have been removed by the Target species (upper bound)?
             # This will be added to the observed catch count later
             upper_bound <- round(upper_bound)
           }
@@ -579,24 +579,24 @@ Results$sat_level <- factor(Results$sat_level, levels=c('low','high'), ordered =
 Results$mean_attract <- factor(Results$mean_attract, levels=c('constant','linear'), ordered = T)
 Results$model <- factor(Results$model, levels=c('naive','adjust','censored','censored_95'), ordered = T)
 
-# Create artificial 'relative abundance' of target and aggressive species plots
+# Create artificial 'relative abundance' of target and Competitor plots
 rel_abund_dat <- data.frame(expand.grid(
-  species=c('target species','aggressive species'),
+  species=c('Target species','Competitor'),
   sat_level=factor(c('low','high'), levels=c('low','high'), ordered = T),
   mean_attract=factor(c('constant','constant','linear','linear')),
   Year=c(1,2,3,4,5,6)))
 rel_abund_dat$Abundance <- 1
-rel_abund_dat$Abundance[rel_abund_dat$species=='target species'&
+rel_abund_dat$Abundance[rel_abund_dat$species=='Target species'&
                           rel_abund_dat$mean_attract=='linear'] <-
-  rel_abund_dat$Year[rel_abund_dat$species=='target species'&
+  rel_abund_dat$Year[rel_abund_dat$species=='Target species'&
                        rel_abund_dat$mean_attract=='linear']
-rel_abund_dat$Abundance[rel_abund_dat$species=='aggressive species'&
+rel_abund_dat$Abundance[rel_abund_dat$species=='Competitor'&
                           rel_abund_dat$sat_level=='low'] <-
-  (c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='aggressive species'&
+  (c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='Competitor'&
                        rel_abund_dat$sat_level=='low']]
-rel_abund_dat$Abundance[rel_abund_dat$species=='aggressive species'&
+rel_abund_dat$Abundance[rel_abund_dat$species=='Competitor'&
                           rel_abund_dat$sat_level=='high'] <-
-  2*(c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='aggressive species'&
+  2*(c(120,140, 160, 180, 200, 280)/120)[rel_abund_dat$Year[rel_abund_dat$species=='Competitor'&
                        rel_abund_dat$sat_level=='high']]
 
 rel_abund_plot <-
@@ -610,7 +610,7 @@ ggplot(rel_abund_dat,
   facet_grid(mean_attract+sat_level~.,
              labeller = labeller(
                mean_attract = c(
-                 constant = 'constant target species \nabundance',
+                 constant = 'constant Target species \nabundance',
                  linear = 'linearly increasing target \nspecies abundance '
                ),
                sat_level = c(
@@ -656,11 +656,11 @@ ggplot(aes(x=Station, y=Mean, ymin=LCL, ymax=UCL, colour=model, group=model, sha
                  saturation = 'p* = 0.85'
                ),
                bite_fun=c(
-                 constant = 'Uniform Distributions',
-                 mixed = 'Mixture of Distributions'
+                 constant = 'Identical Aggressiveness',
+                 mixed = 'Differing Aggressiveness'
                ),
                mean_attract = c(
-                 constant = 'constant target species \nabundance',
+                 constant = 'constant Target species \nabundance',
                  linear = 'linearly increasing target \nspecies abundance '
                ),
                sat_level = c(
@@ -670,7 +670,7 @@ ggplot(aes(x=Station, y=Mean, ymin=LCL, ymax=UCL, colour=model, group=model, sha
              )) +
   geom_hline(yintercept=0) +
   ggtitle('Bias in relative abundance for each method')+#,
-          #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
+          #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
   ylab('Bias') +
   xlab('Year') + guides(fill='none') +
   scale_fill_brewer(palette = 'Pastel1') +
@@ -709,11 +709,11 @@ Results %>%
                  saturation = 'p* = 0.85'
                ),
                bite_fun=c(
-                 constant = 'Uniform Distributions',
-                 mixed = 'Mixture of Distributions'
+                 constant = 'Identical Aggressiveness',
+                 mixed = 'Differing Aggressiveness'
                ),
                mean_attract = c(
-                 constant = 'constant target species \nabundance',
+                 constant = 'constant Target species \nabundance',
                  linear = 'linearly increasing target \nspecies abundance '
                ),
                sat_level = c(
@@ -723,7 +723,7 @@ Results %>%
              )) +
   geom_hline(yintercept=0) +
   ggtitle('Bias in relative abundance for each method')+#,
-          #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
+          #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
   ylab('Bias') +
   xlab('Year') + guides(fill='none') +
   scale_fill_brewer(palette = 'Pastel1') +
@@ -763,11 +763,11 @@ Results %>%
                  saturation = 'p* = 0.85'
                ),
                bite_fun=c(
-                 constant = 'Uniform Distributions',
-                 mixed = 'Mixture of Distributions'
+                 constant = 'Identical Aggressiveness',
+                 mixed = 'Differing Aggressiveness'
                ),
                mean_attract = c(
-                 constant = 'constant target species \nabundance',
+                 constant = 'constant Target species \nabundance',
                  linear = 'linearly increasing target \nspecies abundance '
                ),
                sat_level = c(
@@ -777,7 +777,7 @@ Results %>%
              )) +
   geom_hline(yintercept=0) +
   ggtitle('Bias in relative abundance for each method')+#,
-          #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
+          #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
   ylab('Bias') +
   xlab('Year') + guides(fill='none') +
   scale_fill_brewer(palette = 'Pastel1') +
@@ -816,11 +816,11 @@ Results %>%
                  saturation = 'p* = 0.85'
                ),
                bite_fun=c(
-                 constant = 'Uniform Distributions',
-                 mixed = 'Mixture of Distributions'
+                 constant = 'Identical Aggressiveness',
+                 mixed = 'Differing Aggressiveness'
                ),
                mean_attract = c(
-                 constant = 'constant target species \nabundance',
+                 constant = 'constant Target species \nabundance',
                  linear = 'linearly increasing target \nspecies abundance '
                ),
                sat_level = c(
@@ -830,7 +830,7 @@ Results %>%
              )) +
   geom_hline(yintercept=0.95) +
   ggtitle('Coverage of intervals of relative abundance for each method')+#,
-          #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
+          #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
   ylab('Coverage') +
   xlab('Year') + guides(fill='none') +
   scale_fill_brewer(palette = 'Pastel1') +
@@ -868,11 +868,11 @@ multiplot(
                    saturation = 'p* = 0.85'
                  ),
                  bite_fun=c(
-                   constant = 'Uniform Distributions',
-                   mixed = 'Mixture of Distributions'
+                   constant = 'Identical Aggressiveness',
+                   mixed = 'Differing Aggressiveness'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -882,7 +882,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('MSE in relative abundance for each method')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
     ylab('MSE') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -920,11 +920,11 @@ multiplot(
                    saturation = 'p* = 0.85'
                  ),
                  bite_fun=c(
-                   constant = 'Uniform Distributions',
-                   mixed = 'Mixture of Distributions'
+                   constant = 'Identical Aggressiveness',
+                   mixed = 'Differing Aggressiveness'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -934,7 +934,7 @@ multiplot(
                )) +
     geom_hline(yintercept=0) +
     ggtitle('MSE in relative abundance for each method') +#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
     ylab('MSE') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
@@ -974,11 +974,11 @@ multiplot(
                    saturation = 'p* = 0.85'
                  ),
                  bite_fun=c(
-                   constant = 'Uniform Distributions',
-                   mixed = 'Mixture of Distributions'
+                   constant = 'Identical Aggressiveness',
+                   mixed = 'Differing Aggressiveness'
                  ),
                  mean_attract = c(
-                   constant = 'constant target species \nabundance',
+                   constant = 'constant Target species \nabundance',
                    linear = 'linearly increasing target \nspecies abundance '
                  ),
                  sat_level = c(
@@ -987,7 +987,7 @@ multiplot(
                  )
                )) +
     ggtitle('Proportion of Fishing Events with Specified Level of Hook Saturation')+#,
-            #subtitle = 'Rows are trends in relative abundance of target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
+            #subtitle = 'Rows are trends in relative abundance of Target species and the average degree of hook saturation.\nColumns describe arrival time distributions and hook location abilities after 85% of baits removed.') +
     ylab('Proportion of fishing events') +
     xlab('Year') + guides(fill='none') +
     scale_fill_brewer(palette = 'Pastel1') +
