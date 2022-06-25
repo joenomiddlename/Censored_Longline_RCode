@@ -1,7 +1,7 @@
 # Censored_Longline_RCode
 A repository storing all the R code used to run the simulation experiments and case study seen in the paper: *A statistical censoring approach accounts for hook competition in abundance indices from longline surveys*
 
-All 6 simulation experiments, including code and intermediary rds files, can be found in the folder: *Simulation_Experiments*
+All 6 simulation experiments, including code and intermediary rds files, can be found in the folder: *Simulation Experiments*
 
 The code and results files for the case study can be found in the folder: *Case Study*
 
