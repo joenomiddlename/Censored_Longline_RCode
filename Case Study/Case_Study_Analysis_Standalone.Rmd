@@ -1082,7 +1082,7 @@ censored_poisson_convergence <-
   rep('right-censored', length(simple_species_vec))
 # Which values of hat{p_i^star} should be used for each species based on earlier plots?
 cprop_values <- c(0.95, 0.95, 0.85, 1, 0.95, 0.95, 0.85,0.95, 0.95, 0.95, 1)
-upper_quantile_values <- c(1.1, 1.1, 1.1, 0.85, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 0.85)
+upper_quantile_values <- c(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1)
 
 fit_mods <- F
 
