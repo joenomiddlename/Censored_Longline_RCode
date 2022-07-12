@@ -434,6 +434,81 @@ Results %>%
   geom_hline(yintercept = log(0.9), colour='pink', linetype='dashed') 
 )
 
+# Repeat figure, but on the original scale
+plot2 <- 
+  plot$data %>%
+  ggplot(aes(x=prop_sat, y=exp(Mean), ymax=exp(UCL), ymin=exp(LCL), 
+             colour=Species, fill=Species)) +
+  geom_rect(xmin=0.8, xmax=0.95, ymin=0, ymax=exp(1.5), colour='grey',alpha=0.2, fill='grey') +
+  geom_rect(xmin=0.95, xmax=1, ymin=0, ymax=exp(1.5), colour='dark grey',alpha=0.2, fill='dark grey') +
+  geom_text(data=data.frame(x=c(hook_sat_level+0.025), y=exp(0.8), label=c('p*'), size=4),aes(x=x,y=y,label=label,size=size), inherit.aes = F) +
+  geom_line() + 
+  geom_ribbon(alpha=0.3) +
+  #geom_vline(xintercept=0.875) +
+  geom_vline(xintercept=hook_sat_level) +
+  facet_grid(~Species) +
+  theme(legend.position = 'none',
+        panel.grid = element_blank()) +
+  scale_color_discrete() +
+  scale_fill_discrete() +  
+  coord_cartesian(ylim = c(0,NA)) +
+  xlab('Proportion of baits removed') +
+  ylab('Estimated effect of hook competition on mean catch count')
+
+multiplot(plot2,
+          Results %>%
+            mutate(Tested = factor(
+              ifelse(target_species!='aggressive' &
+                       sd_species == 'overdisp_other',
+                     'red',
+                     ifelse(target_species=='aggressive' &
+                              sd_species == 'overdisp_other',
+                            'green',
+                            ifelse(target_species=='aggressive' &
+                                     sd_species == 'overdisp_target',
+                                   'blue','black'))),
+              levels=c('red','green','blue', 'black'),
+              ordered=T),
+              Tested2 = factor(
+                ifelse(target_species!='aggressive' &
+                         sd_species == 'overdisp_other',
+                       'solid',
+                       ifelse(target_species=='aggressive' &
+                                sd_species == 'overdisp_other',
+                              'dotted','longdashed')),
+                levels=c('solid','dotted','longdashed'),
+                ordered=T),
+              sd_species=factor(sd_species, levels=c('overdisp_other','equal','overdisp_target'), ordered=T)) %>%
+            group_by(target_species, sd_species) %>%
+            ggplot(aes(x=target_species, y=exp(Delta_Mean_Catch_Count), 
+                       group=target_species, colour=Tested, linetype=Tested2)) +
+            geom_boxplot(position = position_dodge(width=0.8)) +
+            scale_color_discrete(guide = 'none',type=c('#F8766D', '#00BA38', '#619CFF','#000000')) +
+            scale_linetype_manual(values=c('solid','dotted','longdash'),
+                                  labels=c('Experiments 2-4','Experiment 5','Untested')) +
+            geom_hline(yintercept = 1) +
+            ylab('Estimated effect on mean catch count of target species') + #(i.e. \u03b3 - \u03b2)') +
+            facet_grid( ~ sd_species , scales = 'free_y',
+                        labeller = labeller(
+                          sd_species=c(
+                            overdisp_other = 'A non-target species exhibits strongest \nschooling behaviour',
+                            equal = 'No species exhibits schooling \nbehaviour',
+                            overdisp_target = 'Target species exhibits strongest \nschooling behaviour'
+                            
+                          )
+                        )
+            ) +
+            xlab('Which species reaches the baits fastest on average?') + guides(fill='none') +
+            theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                  axis.line = element_blank(),
+                  legend.position = c(0.15,0.8),
+                  legend.key.size = unit(1,'cm'),
+                  legend.title = element_blank())+#'none') +
+            scale_x_discrete(labels= c('Non-target','No species','Target')) +  
+            coord_cartesian(ylim = c(0,NA))  +
+            geom_hline(yintercept = 0.9, colour='pink', linetype='dashed') 
+)
+
 Results %>%
   mutate(
          Tested = factor(

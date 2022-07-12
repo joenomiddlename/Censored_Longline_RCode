@@ -1067,6 +1067,27 @@ effskate_results %>%
   #ggtitle('Estimated change in log mean catch count vs. log effective skate',
   #        subtitle = 'Mean and 95% confidence intervals for the penalized spline shown #\nDrawn is a fitted linear regression curve with free intercept and slope fixed at 1')
 
+# Repeat the propsat plot, but this time on the original count scale
+propsat_results %>%
+  mutate(Species = str_to_title(Species),
+         P_hat_star = ifelse(Species %in% c('north pacific spiny dogfish', 'shortspine thornyhead'), 1,
+         ifelse(Species %in% c('redbanded rockfish', 'lingcod'), 0.85, 0.95))                   ) %>%
+  ggplot(aes(x=Prop_Sat, y=exp(Mean), ymax=exp(UCL), ymin=exp(LCL), colour=Species, fill=Species)) +
+  geom_line() + geom_ribbon(alpha=0.2) +
+  geom_vline(mapping=aes(xintercept = P_hat_star), data=
+               propsat_results %>%
+  mutate(
+         P_hat_star = ifelse(Species %in% c('north pacific spiny dogfish', 'shortspine thornyhead'), 1,
+         ifelse(Species %in% c('redbanded rockfish', 'lingcod'), 0.85, 0.95)),
+         
+  Species = str_to_title(Species))
+               ) + #0.95) +
+  facet_wrap(~Species, nrow=4, ncol=3) +
+  theme(legend.position = 'none') +
+  xlab('Proportion of baits removed') +
+  ylab('Estimated effect of hook competition on mean catch count')
+
+
 ```
 
 Considering these plots in light of the simulation results from the manuscript, we set: $\hat{p}_i^* = 1$ for shortspine thornyhead and dogfish; $\hat{p}_i^* = 0.95$ for yelloweye rockfish, arrowtooth flounder, pacific cod, pacific halibut, sablefish, big skate, and longnose skate; $\hat{p}_i^* = 0.85$ for lingcod and redbanded rockfish. Additionally, we fix $Q=0.85$ for shortspine thornyhead and dogfish.
