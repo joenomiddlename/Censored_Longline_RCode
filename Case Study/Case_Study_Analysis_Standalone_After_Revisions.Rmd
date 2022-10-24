@@ -1113,7 +1113,7 @@ censored_poisson_convergence <-
 cprop_values <- c(0.85, 0.95, 0.85, 1, 0.95, 0.95, 0.85,0.95, 0.7, 0.95, 1)
 upper_quantile_values <- c(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1)
 
-fit_mods <- F
+fit_mods <- T
 
 if(fit_mods)
 {
@@ -1249,7 +1249,7 @@ bootstrap_index_fun(
 if(!fit_mods)
 {
   results_list <- 
-    readRDS(file='Case_Study_Models_After_Revisions.rds')
+    readRDS(file='Case_Study_Models_After_Revision.rds')
 }
 
 # Plot the results
