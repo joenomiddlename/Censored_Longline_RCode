@@ -1528,7 +1528,7 @@ results %>%
     geom_smooth(alpha=0.4) +
     geom_point() +
     geom_hline(yintercept = 0) +
-    geom_vline(xintercept = mean(Reduced_data_sp$prop_removed>0.85)) +
+    geom_vline(xintercept = mean(Reduced_data_sp$prop_removed>0.7)) +
     theme(legend.position = 'none') +
     ylab('Percentage change in estimated relative abundance') +
     xlab('Proportion of fishing events with > 70% baits removed') +
